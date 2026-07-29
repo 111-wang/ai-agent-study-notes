@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 学习笔记 - 核心概念六维梳理</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-secondary: #555;
+    --accent: #4361ee;
+    --accent-light: #e8edff;
+    --border: #e0e0e0;
+    --success: #2ecc71;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --code-bg: #f1f3f5;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 0;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #4361ee 0%, #7209b7 50%, #f72585 100%);
+    color: white;
+    padding: 60px 20px 40px;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: 2.4em;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero .subtitle {
+    font-size: 1.1em;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .hero .meta {
+    margin-top: 20px;
+    font-size: 0.85em;
+    opacity: 0.7;
+  }
+
+  .hero .source-link {
+    color: rgba(255,255,255,0.85);
+    text-decoration: underline;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px 20px;
+  }
+
+  .toc {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow);
+  }
+
+  .toc h2 {
+    font-size: 1.2em;
+    margin-bottom: 16px;
+    color: var(--accent);
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--accent-light);
+    font-size: 0.95em;
+    transition: transform 0.2s;
+  }
+
+  .toc-item:hover {
+    transform: translateX(4px);
+  }
+
+  .toc-num {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 1.1em;
+    min-width: 24px;
+  }
+
+  .section {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 30px 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+    border-top: 4px solid var(--accent);
+  }
+
+  .section h2 {
+    font-size: 1.5em;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .section h2 .num {
+    color: var(--accent);
+    font-weight: 800;
+  }
+
+  .section h3 {
+    font-size: 1.15em;
+    margin: 20px 0 10px;
+    color: var(--text);
+  }
+
+  .section p {
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+  }
+
+  .formula {
+    background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%);
+    color: white;
+    padding: 20px 28px;
+    border-radius: 10px;
+    font-size: 1.4em;
+    font-weight: 700;
+    text-align: center;
+    margin: 16px 0;
+    letter-spacing: 0.02em;
+  }
+
+  .formula .small {
+    font-size: 0.85em;
+    opacity: 0.85;
+    font-weight: 400;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9em;
+  }
+
+  th {
+    background: var(--accent);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tr:nth-child(even) td { background: #f8f9fa; }
+
+  .insight-box {
+    background: var(--accent-light);
+    border-left: 4px solid var(--accent);
+    padding: 16px 20px;
+    margin: 16px 0;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .insight-box .label {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 0.85em;
+    margin-bottom: 6px;
+  }
+
+  .insight-box p {
+    color: var(--text);
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.85em;
+    margin: 12px 0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  .tag-blue { background: #4361ee; color: white; }
+  .tag-green { background: #2ecc71; color: white; }
+  .tag-orange { background: #f39c12; color: white; }
+  .tag-red { background: #e74c3c; color: white; }
+  .tag-purple { background: #7209b7; color: white; }
+
+  .evolution-chain {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+  }
+
+  .evolution-step {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    font-weight: 600;
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .evolution-arrow {
+    color: var(--accent);
+    font-size: 1.2em;
+  }
+
+  .loop-diagram {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+
+  .loop-step {
+    width: 120px;
+    text-align: center;
+    padding: 16px 8px;
+    border-radius: 10px;
+    background: var(--accent-light);
+    border: 2px solid var(--accent);
+  }
+
+  .loop-step .icon { font-size: 1.5em; margin-bottom: 6px; }
+  .loop-step .name { font-weight: 700; color: var(--accent); font-size: 0.9em; }
+
+  .summary-table {
+    margin-top: 10px;
+  }
+
+  .summary-table td:first-child {
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 30px;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 0.85em;
+  }
+
+  .footer a { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 1.6em; }
+    .toc-grid { grid-template-columns: 1fr; }
+    .section { padding: 20px 16px; }
+    .formula { font-size: 1.1em; }
+    .loop-diagram { gap: 8px; }
+    .loop-step { width: 100px; padding: 10px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>AI Agent 核心概念</h1>
+  <p class="subtitle">六维知识梳理 · 从公式到工程，系统化理解 Agent 的本质与实践</p>
+  <p class="meta">基于 <a href="https://bojieli.github.io/ai-agent-book/book/chapter1/" class="source-link">AI Agent Book 第一章</a> 整理 · 2026-07-16</p>
+</div>
+
+<div class="container">
+
+<!-- TOC -->
+<div class="toc">
+  <h2>📋 知识点导航</h2>
+  <div class="toc-grid">
+    <a href="#s1" class="toc-item"><span class="toc-num">01</span> 核心公式：大脑+眼睛+手脚</a>
+    <a href="#s2" class="toc-item"><span class="toc-num">02</span> ReAct循环：思考-行动-观察</a>
+    <a href="#s3" class="toc-item"><span class="toc-num">03</span> 上下文五组件消融实验</a>
+    <a href="#s4" class="toc-item"><span class="toc-num">04</span> Harness工程：模型之外的竞争力</a>
+    <a href="#s5" class="toc-item"><span class="toc-num">05</span> 编排模式：工作流 vs 自主Agent</a>
+    <a href="#s6" class="toc-item"><span class="toc-num">06</span> 人工干预：Human in the Loop</a>
+  </div>
+</div>
+
+<!-- Section 1 -->
+<div class="section" id="s1">
+  <h2><span class="num">01</span> Agent 核心公式</h2>
+
+  <div class="formula">
+    Agent = LLM + 上下文 + 工具<br>
+    <span class="small">= 大脑 + 眼睛 + 手脚</span>
+  </div>
+
+  <h3>三大组件的广义理解</h3>
+  <table>
+    <tr><th>组件</th><th>比喻</th><th>广义含义</th></tr>
+    <tr><td><strong>LLM</strong></td><td>🧠 大脑</td><td>整个决策内核——理解意图、思考规划、做出判断。能力来自<strong>预训练</strong>的世界知识 + <strong>后训练</strong>的决策策略</td></tr>
+    <tr><td><strong>上下文</strong></td><td>👁 眼睛</td><td>每个决策点能看到的<strong>全部信息</strong>——环境、记忆、知识、自身状态和任务进展</td></tr>
+    <tr><td><strong>工具</strong></td><td>🤲 手脚</td><td>能做的<strong>所有事</strong>——预定义工具调用、按需加载技能(Skills)、动态生成代码、委托子Agent、与用户沟通</td></tr>
+  </table>
+
+  <div class="insight-box">
+    <div class="label">💡 关键洞察</div>
+    <p>观察空间 + 动作空间 = LLM 与外部世界的接口。模型固定时，提升 Agent 能力最有效的手段就是<strong>扩展这两个空间</strong>。</p>
+  </div>
+</div>
+
+<!-- Section 2 -->
+<div class="section" id="s2">
+  <h2><span class="num">02</span> ReAct 循环</h2>
+
+  <div class="loop-diagram">
+    <div class="loop-step">
+      <div class="icon">🤔</div>
+      <div class="name">思考</div>
+    </div>
+    <div class="loop-step">
+      <div class="icon">⚡</div>
+      <div class="name">行动</div>
+    </div>
+    <div class="loop-step">
+      <div class="icon">👁</div>
+      <div class="name">观察</div>
+    </div>
+    <div class="loop-step" style="border-color: #7209b7; background: #f3e8ff;">
+      <div class="icon">🔄</div>
+      <div class="name">循环</div>
+    </div>
+  </div>
+
+  <div class="code-block">上下文 = 静态前缀(系统提示词 + 工具定义) + 轨迹(消息 + 回复 + 工具结果)</div>
+
+  <h3>上下文的累积性</h3>
+  <p>每次调用 LLM 都能看到<strong>完整轨迹</strong>——之前所有的消息、回复和工具结果，这让 Agent 知道"我现在做到哪了"。轨迹持续增长，不会丢失。</p>
+
+  <div class="insight-box">
+    <div class="label">📌 实例</div>
+    <p>多币种收入汇总：第1轮并行调用3个货币转换工具 → 第2轮调用代码解释器计算 → 第3轮输出最终答案。仅<strong>3次迭代、4次工具调用</strong>。</p>
+  </div>
+</div>
+
+<!-- Section 3 -->
+<div class="section" id="s3">
+  <h2><span class="num">03</span> 上下文五组件与消融实验</h2>
+
+  <p>像医生逐一排除病因一样，每次去掉一个组件看系统是否还正常。</p>
+
+  <table>
+    <tr><th>#</th><th>组件</th><th>去掉后的影响</th><th>严重程度</th></tr>
+    <tr><td>1</td><td>系统提示词</td><td>失去角色定位和基本行为准则</td><td><span class="tag tag-orange">中等</span></td></tr>
+    <tr><td>2</td><td>工具定义</td><td>不知道有哪些工具可用，完全丧失行动能力</td><td><span class="tag tag-red">严重</span></td></tr>
+    <tr><td>3</td><td>思考过程</td><td>前后决策互相矛盾，丧失思维连贯性</td><td><span class="tag tag-orange">中等</span></td></tr>
+    <tr><td>4</td><td>历史消息</td><td>失忆，从头开始整个任务，重复已完成步骤</td><td><span class="tag tag-red">严重</span></td></tr>
+    <tr><td>5</td><td>工具结果</td><td>看不到上一步反馈，反复调用同一工具，陷入无限循环</td><td><span class="tag tag-red">严重</span></td></tr>
+  </table>
+
+  <div class="insight-box">
+    <div class="label">💡 核心洞察</div>
+    <p>上下文决定 Agent 能看到什么，而 Agent <strong>只能基于看到的信息做决策</strong>。信息缺失 → 决策缺陷，这是因果链的铁律。</p>
+  </div>
+</div>
+
+<!-- Section 4 -->
+<div class="section" id="s4">
+  <h2><span class="num">04</span> Harness 工程</h2>
+
+  <p><strong>Harness = 模型之外的所有工程实践</strong>，是整章最重要的概念转折。</p>
+
+  <table>
+    <tr><th>层</th><th>要素</th><th>说明</th></tr>
+    <tr><td>1</td><td><strong>上下文</strong></td><td>什么时候给模型看什么信息</td></tr>
+    <tr><td>2</td><td><strong>工具</strong></td><td>给模型哪些能力，约束怎么调</td></tr>
+    <tr><td>3</td><td><strong>约束</strong></td><td>防止模型做不该做的事</td></tr>
+    <tr><td>4</td><td><strong>验证</strong></td><td>模型做完后如何检查结果是否正确</td></tr>
+    <tr><td>5</td><td><strong>纠正</strong></td><td>检查发现问题时如何修复</td></tr>
+  </table>
+
+  <p>五要素形成闭环：上下文 → 工具 → 约束 → 验证 → 纠正 → 回到上下文</p>
+
+  <div class="insight-box">
+    <div class="label">🔥 关键判断</div>
+    <p>当各家模型能力越来越接近，<strong>竞争优势就转移到了模型之外的工程实践</strong>。实证：LangChain 在 Terminal Bench 2.0 上从 52.8% → 66.5%，改变的不是模型，而是 Harness。</p>
+  </div>
+
+  <h3>工程范式演进链</h3>
+  <div class="evolution-chain">
+    <div class="evolution-step">软件工程</div><span class="evolution-arrow">→</span>
+    <div class="evolution-step">提示工程</div><span class="evolution-arrow">→</span>
+    <div class="evolution-step">上下文工程</div><span class="evolution-arrow">→</span>
+    <div class="evolution-step" style="background:#4361ee;color:white;">Harness工程</div><span class="evolution-arrow">→</span>
+    <div class="evolution-step">Loop工程</div><span class="evolution-arrow">→</span>
+    <div class="evolution-step">Graph工程</div>
+  </div>
+  <p>每一层都是前一层的<strong>超集</strong>，而非替代品。</p>
+</div>
+
+<!-- Section 5 -->
+<div class="section" id="s5">
+  <h2><span class="num">05</span> 编排模式：工作流 vs 自主 Agent</h2>
+
+  <table>
+    <tr><th>维度</th><th>工作流 (Workflow)</th><th>自主 Agent (Autonomous)</th></tr>
+    <tr><td><strong>决策方式</strong></td><td>确定性路由，预定义步骤</td><td>LLM 动态决策，灵活选择路径</td></tr>
+    <tr><td><strong>可靠性</strong></td><td><span class="tag tag-green">高</span> 可控可预测</td><td><span class="tag tag-red">低</span> 存在幻觉和偏离风险</td></tr>
+    <tr><td><strong>灵活性</strong></td><td><span class="tag tag-red">低</span> 难以处理未预见情况</td><td><span class="tag tag-green">高</span> 能应对新颖场景</td></tr>
+    <tr><td><strong>适用场景</strong></td><td>合规流程、标准操作</td><td>探索性任务、复杂决策</td></tr>
+    <tr><td><strong>调试难度</strong></td><td>低，路径明确</td><td>高，行为不可预测</td></tr>
+  </table>
+
+  <div class="insight-box">
+    <div class="label">🎯 核心原则</div>
+    <p>从简单到复杂：先优化提示词 → 再考虑工作流 → <strong>最后才引入自主 Agent</strong>。如果优化提示和上下文示例就能解决，就别引入 Agent 系统。</p>
+  </div>
+
+  <p>实践中两种模式常常<strong>混合使用</strong>：关键合规流程用工作流保证可靠性，灵活决策部分切换到自主模式。</p>
+</div>
+
+<!-- Section 6 -->
+<div class="section" id="s6">
+  <h2><span class="num">06</span> 人工干预：Human in the Loop</h2>
+
+  <p>人工干预是 Agent 安全运行的<strong>最后一道防线</strong>——让 Agent "在无法完成时优雅地转移控制权"。</p>
+
+  <table>
+    <tr><th>触发条件</th><th>说明</th><th>示例</th></tr>
+    <tr><td><span class="tag tag-orange">超过失败阈值</span></td><td>重试次数设上限，多次尝试仍无法理解意图 → 升级人工</td><td>用户意图模糊，Agent反复理解失败</td></tr>
+    <tr><td><span class="tag tag-red">高风险操作</span></td><td>敏感、不可逆的操作 → 必须人工确认</td><td>取消订单、大额退款、付款审批</td></tr>
+  </table>
+
+  <h3>部署早期的特殊价值</h3>
+  <ul style="margin:12px 0;padding-left:20px;color:var(--text-secondary);">
+    <li><strong>识别失败模式</strong> — 哪些场景 Agent 容易出错</li>
+    <li><strong>发现边缘情况</strong> — 训练数据没覆盖的特殊场景</li>
+    <li><strong>建立评估周期</strong> — 逐步量化 Agent 的可靠度</li>
+  </ul>
+
+  <h3>设计原则</h3>
+  <ul style="margin:12px 0;padding-left:20px;color:var(--text-secondary);">
+    <li>设定明确的<strong>重试上限</strong>（如3次），超过即升级人工</li>
+    <li>对<strong>不可逆操作</strong>强制人工确认</li>
+    <li>保留完整的<strong>决策轨迹</strong>，方便人工快速理解上下文</li>
+    <li>随着系统成熟，逐步<strong>收窄人工干预范围</strong></li>
+  </ul>
+</div>
+
+<!-- Summary -->
+<div class="section" style="border-top-color: #7209b7;">
+  <h2>🎯 全章总结</h2>
+
+  <table class="summary-table">
+    <tr><th>#</th><th>知识点</th><th>一句话总结</th></tr>
+    <tr><td>1</td><td>核心公式</td><td>Agent = LLM(大脑) + 上下文(眼睛) + 工具(手脚)，三者缺一不可</td></tr>
+    <tr><td>2</td><td>ReAct循环</td><td>思考→行动→观察不断重复，上下文=静态前缀+轨迹(累积增长)</td></tr>
+    <tr><td>3</td><td>上下文五组件</td><td>消融实验证明每个组件不可替代，上下文决定Agent能看到什么</td></tr>
+    <tr><td>4</td><td>Harness工程</td><td>模型之外=竞争力所在，五要素闭环：上下文+工具+约束+验证+纠正</td></tr>
+    <tr><td>5</td><td>编排模式</td><td>工作流(确定性) vs 自主(动态)，从简单到复杂，可混合使用</td></tr>
+    <tr><td>6</td><td>人工干预</td><td>两种触发：超过失败阈值 + 高风险操作，优雅移交控制权</td></tr>
+  </table>
+
+  <div class="insight-box" style="background: #f3e8ff; border-left-color: #7209b7;">
+    <div class="label" style="color: #7209b7;">💎 终极洞察</div>
+    <p>模型还做不稳的，Harness 先补上；模型每内化一层，Harness 就卸下一层，转而兜底新的能力前沿。<strong>此刻模型的能力边界，就是 Harness 此刻的价值所在。</strong></p>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  <p>基于 <a href="https://bojieli.github.io/ai-agent-book/book/chapter1/">AI Agent Book 第一章</a> 整理 · 用 WorkBuddy 生成</p>
+</div>
+
+</body>
+</html>
